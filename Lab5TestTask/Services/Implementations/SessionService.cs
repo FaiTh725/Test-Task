@@ -1,4 +1,5 @@
 ﻿using Lab5TestTask.Data;
+using Lab5TestTask.Enums;
 using Lab5TestTask.Models;
 using Lab5TestTask.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +21,19 @@ public class SessionService : ISessionService
 
     public async Task<Session> GetSessionAsync()
     {
-        throw new NotImplementedException();
+        return await _dbContext.Sessions
+            .OrderBy(x => x.StartedAtUTC)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<List<Session>> GetSessionsAsync()
     {
-        throw new NotImplementedException();
+        return await _dbContext.Sessions
+            .Where(x => x.EndedAtUTC < new DateTime(2025, 1, 1) &&
+                _dbContext.Users
+                    .Where(y => y.Status == UserStatus.Active)
+                    .Select(y => y.Id)
+                    .Contains(x.UserId))
+            .ToListAsync();
     }
 }
